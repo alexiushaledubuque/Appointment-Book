@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <script src="https://code.jquery.com/jquery-2.2.0.js"></script>
+    <script src="http://momentjs.com/downloads/moment.js"></script>
+    <title>APEX Web App Challenge</title>
+
+    <!-- Bootstrap -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+      crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ab.css') }} ">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body align=center>
+
+   <div class="container" id="topContainer"> <!-- class="container" creates a responsive fixed width container -->
+     <header class="header"> <!-- Container for header of page -->
+       <h1>APPOINTMENT BOOK<input id="date" type="text" name="date" readonly="readonly"></h1>
+     </header>
+     <hr>
+   </div>
+
+   <div class="container contentContainer">
+     <div class="row">
+       <div>
+         <section class='newApptsContainer'>
+             <div>
+                 <button id='newAppts'>NEW</button>
+             </div>
+         </section>
+
+         <section class='searchApptsContainer'>
+             <div>
+                 <input id="searchInput" type="text" name="searchInput" placeholder=" ex. March 5" value=""  autofocus>
+                 <button id="getAppts">SEARCH</button>
+             </div>
+         </section>
+       </div>
+     </div>
+   </div>
+
+   <div class="container contentContainer">
+     <div class='message'><div>
+     <div class="row showTable">
+       <div class="panel panel-default">
+         <!-- Default panel contents -->
+         <div class="panel-heading">
+           <h2>Current Appointments</h2>
+         </div>
+
+         <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+	       <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+
+         <!-- Appointments Table -->
+         <div class='rowsFound'>
+           <table class="table">
+             <tr>
+               <th>DATE</th>
+               <th>TIME</th>
+               <th>DESCRIPTION</th>
+             </tr>
+           </table>
+         </div>
+       </div>
+    </div>
+  </div>
+
+    <script>
+      $(document).ready(function(){
+
+          // Get formatted date
+          var currentDte = moment().format('llll');
+          $('#date').val(currentDte);
+
+          // Dummy test data
+          var apptsArray = [
+            {date: 'May 2', time: '11:00am', description: "Something"},
+            {date: 'May 2', time: '12:00pm', description: "Something else"},
+            {date: 'May 4', time: '8:00am', description: "Meet foo"},
+            {date: 'May 5', time: '3:00pm', description: "Meet Sue"}
+          ];
+
+         //var apptsArray = [];
+
+          // GET all current rows in the table
+             // 	$.ajax({
+             // 		type: 'GET',
+        			// 	url: '/',
+        			// 	success: function(newData){
+        			// 		for (var e = 0; e < newData.length; e++){
+        			// 			apptsArray.push('{date: ' + JSON.stringify(newData[e].apptDate) +
+              //       ', time: ' + JSON.stringify(newData[e].apptTime) + ', description: '
+              //       + JSON.stringify(newData[e].description) + '}');
+        			// 	  }
+              //   },
+        			// 	error: function(error){
+        			// 		console.error(error);
+        			// 	}
+             // 	})
+
+          // Get appointments if they exists
+          var getAppointments = function(inputDate){
+            if (apptsArray.length > 0){
+              var tableData = '';
+              var tableData2 = '';
+
+              for (var i = 0; i < apptsArray.length; i++){
+                if (inputDate === apptsArray[i].date){
+                  tableData += '<tr><td>' + apptsArray[i].date + '</td><td>' + apptsArray[i].time + '</td><td>' + apptsArray[i].description + '</td></tr>';
+                } else {
+                  tableData2 += '<tr><td>' + apptsArray[i].date + '</td><td>' + apptsArray[i].time + '</td><td>' + apptsArray[i].description + '</td></tr>';
+                }
+              }
+
+              if (inputDate){
+                  $('.table').append(tableData);
+                  $('.showTable').css({'display': 'table', 'width': '102%'});
+              } else {
+                $('.table').append(tableData2);
+                $('.showTable').css({'display': 'table', 'width': '102%'});
+              }
+            } else {
+              $('.message').text('NO APPTS FOUND!');
+            }
+          }
+
+          $('#getAppts').on('click', function(){
+            $('.table').empty();
+
+            var specificDate = $('#searchInput').val();
+            getAppointments(specificDate);
+          })
+
+          $('#searchInput').keypress(function(event){
+          if (event.keyCode === 13){
+            $('.table').empty();
+            getAppointments();
+          }
+        });
+
+        });
+
+    </script>
+
+
+    <!-- Stack the columns on mobile by making one full-width and the other half-width -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+      integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+      crossorigin="anonymous"></script>
+  </body>
+</html>

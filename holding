@@ -1,0 +1,47 @@
+import sqlite3
+
+from flask import Flask, render_template, request, jsonify, g
+from flask_sqlalchemy import SQLAlchemy
+
+DATABASE = 'apex.db'
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+app = Flask(__name__, template_folder='templates')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////apex.db'
+db = SQLAlchemy(app)
+
+class apptTable(db.Model):
+    __tablename__ = 'apptTable'
+    id = db.Column('id', db.Integer, primary_key=True)
+    apptDate = db.Column('apptDate', db.TEXT)
+    apptTime = db.Column('apptDate', db.TEXT)
+    description = db.Column('description', db.TEXT)
+
+@app.route('/')
+def main():
+    return render_template('index.html')
+
+@app.route('/process', methods=['POST', 'GET'])
+def process():
+    con = sqlite3.connect('apex.db')
+    con.row_factory = sql.row_factory
+
+    cur = con.cursor()
+    cur.execute('select * from apptTable')
+
+    rows = cur.fetchall();
+    return render_template('index.html', rows = rows)
+
+if __name__ == "__main__":
+    app.run()
